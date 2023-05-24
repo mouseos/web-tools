@@ -5,13 +5,23 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 </head>
 <body>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">文字数カウント</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="#">ツール1</a></li>
+        <li><a href="#">ツール2</a></li>
+        <li><a href="#">ツール3</a></li>
+      </ul>
+    </div>
+  </nav>
+
   <div class="container">
     <h3>文字数カウント</h3>
     <div class="input-field">
-      <textarea id="text-input" class="materialize-textarea"></textarea>
+      <textarea id="text-input" class="materialize-textarea" oninput="countCharacters()"></textarea>
       <label for="text-input">テキストを入力してください</label>
     </div>
-    <button class="btn" onclick="countCharacters()">カウント</button>
     <div id="result" style="margin-top: 20px;"></div>
   </div>
 
