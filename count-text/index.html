@@ -2,12 +2,27 @@
 <html>
 <head>
   <title>文字数カウント</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <style>
+    @media only screen and (max-width: 600px) {
+      #nav-mobile {
+        display: flex;
+        flex-direction: column;
+        margin-top: 1rem;
+      }
+
+      #nav-mobile li {
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav>
     <div class="nav-wrapper">
-      <a href="#" class="brand-logo">文字数カウント</a>
+      <a href="#" class="brand-logo">カウント</a>
+      <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
       <ul id="nav-mobile" class="right hide-on-med-and-down">
         <li><a href="#">ツール1</a></li>
         <li><a href="#">ツール2</a></li>
@@ -18,9 +33,10 @@
 
   <div class="container">
     <h3>文字数カウント</h3>
-    <div class="input-field">
-      <textarea id="text-input" class="materialize-textarea" oninput="countCharacters()"></textarea>
-      <label for="text-input">テキストを入力してください</label>
+    <div class="row">
+      <div class="input-field col s12">
+        <textarea id="text-input" class="materialize-textarea" placeholder="テキストを入力してください" oninput="countCharacters()"></textarea>
+      </div>
     </div>
     <div id="result" style="margin-top: 20px;"></div>
   </div>
@@ -43,6 +59,12 @@
         <p>原稿用紙換算(400x?枚): ${paperSheets}枚</p>
       `;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var elems = document.querySelectorAll('.sidenav');
+      var instances = M.Sidenav.init(elems);
+    });
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 </html>
