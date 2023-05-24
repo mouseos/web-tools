@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>文字数カウント</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+  <div class="container">
+    <h3>文字数カウント</h3>
+    <div class="input-field">
+      <textarea id="text-input" class="materialize-textarea"></textarea>
+      <label for="text-input">テキストを入力してください</label>
+    </div>
+    <button class="btn" onclick="countCharacters()">カウント</button>
+    <div id="result" style="margin-top: 20px;"></div>
+  </div>
+
+  <script>
+    function countCharacters() {
+      var text = document.getElementById('text-input').value;
+      var charactersWithSpaces = text.length;
+      var charactersWithoutSpaces = text.replace(/\s/g, '').length;
+      var lines = text.split('\n').length;
+      var paragraphs = text.split('\n\n').length;
+      var paperSheets = Math.ceil(charactersWithoutSpaces / 400);
+
+      var resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <p>文字数（スペース込み）: ${charactersWithSpaces}</p>
+        <p>文字数（スペース無視）: ${charactersWithoutSpaces}</p>
+        <p>行数: ${lines}</p>
+        <p>段落数: ${paragraphs}</p>
+        <p>原稿用紙換算(400x?枚): ${paperSheets}枚</p>
+      `;
+    }
+  </script>
+</body>
+</html>
