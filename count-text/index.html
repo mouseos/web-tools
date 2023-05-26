@@ -17,19 +17,20 @@
 </head>
 
 <body>
-  <nav>
-    <div class="nav-wrapper">
-      <a href="#">文字数カウント</a>
-      <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-      <ul id="pc-nav" class="right hide-on-med-and-down">
-        <li><a href="#" onclick="downloadTextareaContent()">保存</a></li>
-        <li><a href="#" onclick="openFilePicker()">読み込み</a></li>
-        <li><a href="#" onclick="confirmAndResetTextarea()">リセット</a></li>
-        <li><a href="../index.html">他のツール</a></li>
-      </ul>
-    </div>
-  </nav>
-
+  <div class="navbar-fixed">
+    <nav>
+      <div class="nav-wrapper teal darken-1">
+        <a href="#">文字数カウント</a>
+        <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul id="pc-nav" class="right hide-on-med-and-down">
+          <li><a href="#" onclick="downloadTextareaContent()">保存</a></li>
+          <li><a href="#" onclick="openFilePicker()">読み込み</a></li>
+          <li><a href="#" onclick="confirmAndResetTextarea()">リセット</a></li>
+          <li><a href="../index.html">他のツール</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
   <ul class="sidenav" id="mobile-nav">
 
   </ul>
@@ -52,7 +53,33 @@
       </div>
     </div>
   </div>
-
+  <footer class="page-footer teal darken-1">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">このサイトについて</h5>
+          <p class="grey-text text-lighten-4">Mouse-toolsはブラウザ上で動く様々なツールを提供するサイトです。</p>
+        </div>
+        <div class="col l4 offset-l2 s12">
+          <!--
+          <h5 class="white-text">ツール</h5>
+          <ul>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 1</a></li>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 2</a></li>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 3</a></li>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 4</a></li>
+          </ul>
+          -->
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+        © 2023 Copyright @mouse_soft_y
+        <a class="grey-text text-lighten-4 right" href="https://twitter.com/mouse_soft_y">Twitter</a>
+      </div>
+    </div>
+  </footer>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
     //カウント
