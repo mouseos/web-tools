@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>気象情報</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .editor {
+            height: 60vh;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        body,
+        html {
+            height: 100vh;
+        }
+
+        main {
+            height: 100%;
+        }
+
+        iframe {
+            height: 50vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar-fixed">
+        <nav>
+            <div class="nav-wrapper teal darken-1">
+                <a href="#">気象情報</a>
+                <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <ul id="pc-nav" class="right hide-on-med-and-down">
+                    <li><a href="../index.html">他のツール</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <ul class="sidenav" id="mobile-nav">
+
+    </ul>
+    <main>
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h4>天気予報</h4>
+                    <div id="weather"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="page-footer teal darken-1">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">このサイトについて</h5>
+                    <p class="grey-text text-lighten-4">Mouse-toolsはブラウザ上で動く様々なツールを提供するサイトです。</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © 2023 Mouse Soft Y
+                <a class="grey-text text-lighten-4 right" href="https://twitter.com/mouse_soft_y">Twitter</a>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const elems = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(elems);
+        });
+
+        // 天気予報の取得と表示
+        fetch('https://weather.tsukumijima.net/api/forecast/city/400040')
+            .then(response => response.json())
+            .then(data => {
+                const weatherContainer = document.getElementById('weather');
+                const forecasts = data.forecasts;
+                let forecastHTML = '';
+
+                forecasts.forEach(forecast => {
+                    forecastHTML += `
+                        <div class="card">
+                            <div class="card-content">
+                                <span class="card-title">${forecast.dateLabel}</span>
+                                <p>${forecast.telop}</p>
+                                <img src="${forecast.image.url}" alt="${forecast.image.title}">
+                                <p>最高気温: ${forecast.temperature.max.celsius}°C</p>
+                                <p>最低気温: ${forecast.temperature.min.celsius}°C</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                weatherContainer.innerHTML = forecastHTML;
+            });
+        // PCナビゲーションをモバイルに反映
+        document.querySelector("#mobile-nav").innerHTML = document.querySelector("#pc-nav").innerHTML;
+    </script>
+</body>
+
+</html>
