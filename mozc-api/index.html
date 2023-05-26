@@ -95,7 +95,7 @@
             const inputText = document.getElementById('input-text').value;
 
             // Fetchでコマンドを実行し、結果を取得
-            fetch(`http://www.google.com/transliterate?langpair=ja-Hira|ja&text=${encodeURIComponent(inputText)}`)
+            fetch(`https://www.google.com/transliterate?langpair=ja-Hira|ja&text=${encodeURIComponent(inputText)}`)
                 .then(function (response) {
                     return response.json();
                 })
