@@ -8,26 +8,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .card-content {
-            padding: 16px;
+        .editor {
+            height: 60vh;
+            width: 100%;
+            overflow-y: auto;
         }
 
-        .card-title {
-            font-weight: 500;
-            font-size: 1.2rem;
-            margin-bottom: 8px;
+        body,
+        html {
+            height: 100vh;
         }
 
-        .weather-chart {
-            height: 200px;
+        main {
+            height: 100%;
         }
 
-        .temperature-min {
-            color: blue;
-        }
-
-        .temperature-max {
-            color: red;
+        iframe {
+            height: 50vh;
         }
     </style>
 </head>
@@ -49,92 +46,109 @@
     </ul>
     <main>
         <div class="container">
+            <h4 id="location-name"></h4>
             <div class="row" id="weather-cards"></div>
+            <div class="row" id="weather-summary"></div>
         </div>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const elems = document.querySelectorAll('.sidenav');
             M.Sidenav.init(elems);
         });
 
+        document.querySelector("#mobile-nav").innerHTML = document.querySelector("#pc-nav").innerHTML;
+
+        // 天気情報の取得
         const regionId = '400040';
         const apiUrl = `https://weather.tsukumijima.net/api/forecast/city/${regionId}`;
-        const weatherCards = document.getElementById('weather-cards');
-
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                const forecasts = data.forecasts;
-                forecasts.forEach(forecast => {
-                    const date = forecast.dateLabel;
-                    const temperatureMin = forecast.temperature.min.celsius;
-                    const temperatureMax = forecast.temperature.max.celsius;
-                    const chanceOfRain = Object.values(forecast.chanceOfRain).map(val => parseInt(val));
-                    const weatherIcon = forecast.image.url;
-                    const weatherChartId = `weather-chart-${date}`;
+                // 地域名の表示
+                const locationName = data.location.prefecture + ' ' + data.location.city;
+                document.querySelector("#location-name").textContent = locationName;
 
-                    // Create card element
-                    const card = document.createElement('div');
-                    card.classList.add('col', 's12', 'm6', 'l4');
-                    card.innerHTML = `
+                // 天気カードの表示
+                const weatherCards = document.querySelector("#weather-cards");
+                data.forecasts.forEach(forecast => {
+                    const card = document.createElement("div");
+                    card.className = "col s12 m6";
+                    const cardContent = `
                         <div class="card">
                             <div class="card-content">
-                                <span class="card-title">${date}</span>
-                                <p><img src="${weatherIcon}" alt="weather icon"></p>
-                                <p>最低気温：<span class="temperature-min">${temperatureMin}</span>°C</p>
-                                <p>最高気温：<span class="temperature-max">${temperatureMax}</span>°C</p>
-                                <canvas id="${weatherChartId}" class="weather-chart"></canvas>
+                                <span class="card-title">${forecast.dateLabel}</span>
+                                <img src="${forecast.image.url}" alt="${forecast.telop}">
+                                <p>${forecast.telop}</p>
+                                <p>最低気温: ${forecast.temperature.min.celsius}℃</p>
+                                <p>最高気温: ${forecast.temperature.max.celsius}℃</p>
+                            </div>
+                            <div class="card-action">
+                                <canvas id="chart-${forecast.date}"></canvas>
                             </div>
                         </div>
                     `;
+                    card.innerHTML = cardContent;
                     weatherCards.appendChild(card);
 
-                    // Create weather chart
-                    const ctx = document.getElementById(weatherChartId).getContext('2d');
+                    // 折れ線グラフの描画
+                    const chartData = {
+                        labels: ["00-06", "06-12", "12-18", "18-24"],
+                        datasets: [{
+                            label: "降水確率",
+                            fill: false,
+                            borderColor: "teal",
+                            data: [
+                                parseInt(forecast.chanceOfRain.T00_06) || 0,
+                                parseInt(forecast.chanceOfRain.T06_12) || 0,
+                                parseInt(forecast.chanceOfRain.T12_18) || 0,
+                                parseInt(forecast.chanceOfRain.T18_24) || 0
+                            ]
+                        }]
+                    };
+
+                    const ctx = document.getElementById(`chart-${forecast.date}`).getContext('2d');
                     new Chart(ctx, {
                         type: 'line',
-                        data: {
-                            labels: ['00-06', '06-12', '12-18', '18-24'],
-                            datasets: [{
-                                label: '降水確率',
-                                data: chanceOfRain,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                tension: 0.2,
-                            }]
-                        },
+                        data: chartData,
                         options: {
                             scales: {
                                 y: {
                                     beginAtZero: true,
                                     max: 100,
-                                    title: {
-                                        display: true,
-                                        text: '降水確率 (%)'
-                                    },
-                                    position: 'left',
-                                    grid: {
-                                        drawOnChartArea: false
-                                    }
+                                    suggestedMin: 0,
+                                    suggestedMax: 100
                                 }
                             },
-                            responsive: true,
-                            interaction: {
-                                mode: 'index',
-                                intersect: false
-                            },
                             plugins: {
-                                title: {
-                                    display: true,
-                                    text: '天気予報'
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return context.parsed.y + '%';
+                                        }
+                                    }
                                 }
                             }
                         }
                     });
                 });
+
+                // 気象概況の表示
+                const weatherSummary = document.querySelector("#weather-summary");
+                const summaryCard = document.createElement("div");
+                summaryCard.className = "col s12";
+                const summaryCardContent = `
+                    <div class="card">
+                        <div class="card-content">
+                            <span class="card-title">気象概況</span>
+                            <p>${data.description.text}</p>
+                        </div>
+                    </div>
+                `;
+                summaryCard.innerHTML = summaryCardContent;
+                weatherSummary.appendChild(summaryCard);
             });
     </script>
 </body>
