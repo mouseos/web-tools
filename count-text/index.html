@@ -1,70 +1,157 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>文字数カウント</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-  <style>
-    @media only screen and (max-width: 600px) {
-      #nav-mobile {
-        display: flex;
-        flex-direction: column;
-        margin-top: 1rem;
-      }
+<html lang="ja">
 
-      #nav-mobile li {
-        margin-bottom: 0.5rem;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文字数カウント</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    .editor {
+      height: 60vh;
+      width: 100%;
+      overflow-y: auto;
     }
   </style>
 </head>
+
 <body>
   <nav>
     <div class="nav-wrapper">
-      <a href="#" class="brand-logo">カウント</a>
-      <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-      <ul id="nav-mobile" class="right hide-on-med-and-down">
-        <li><a href="#">ツール1</a></li>
-        <li><a href="#">ツール2</a></li>
-        <li><a href="#">ツール3</a></li>
+      <a href="#">文字数カウント</a>
+      <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+      <ul id="pc-nav" class="right hide-on-med-and-down">
+        <li><a href="#" onclick="downloadTextareaContent()">保存</a></li>
+        <li><a href="#" onclick="openFilePicker()">読み込み</a></li>
+        <li><a href="#" onclick="confirmAndResetTextarea()">リセット</a></li>
+        <li><a href="../index.html">他のツール</a></li>
       </ul>
     </div>
   </nav>
 
+  <ul class="sidenav" id="mobile-nav">
+
+  </ul>
+
   <div class="container">
-    <h3>文字数カウント</h3>
     <div class="row">
-      <div class="input-field col s12">
-        <textarea id="text-input" class="materialize-textarea" placeholder="テキストを入力してください" oninput="countCharacters()"></textarea>
+      <div class="col s12">
+        <div class="input-field">
+          <textarea id="editor" class="editor"></textarea>
+        </div>
       </div>
     </div>
-    <div id="result" style="margin-top: 20px;"></div>
+    <div class="row">
+      <div class="col s12">
+        <h5>文字数（スペース込み）: <span id="charCount">0</span></h5>
+        <h5>文字数（スペース無視）: <span id="charCountNoSpaces">0</span></h5>
+        <h5>行数: <span id="lineCount">0</span></h5>
+        <h5>段落数: <span id="paragraphCount">0</span></h5>
+        <h5>原稿用紙換算(400x?枚): <span id="manuscriptSheets">0</span></h5>
+      </div>
+    </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script>
-    function countCharacters() {
-      var text = document.getElementById('text-input').value;
-      var charactersWithSpaces = text.length;
-      var charactersWithoutSpaces = text.replace(/\s/g, '').length;
-      var lines = text.split('\n').length;
-      var paragraphs = text.split('\n\n').length;
-      var paperSheets = Math.ceil(charactersWithoutSpaces / 400);
+    //カウント
+    document.addEventListener('DOMContentLoaded', function () {
+      M.AutoInit();
 
-      var resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `
-        <p>文字数（スペース込み）: ${charactersWithSpaces}</p>
-        <p>文字数（スペース無視）: ${charactersWithoutSpaces}</p>
-        <p>行数: ${lines}</p>
-        <p>段落数: ${paragraphs}</p>
-        <p>原稿用紙換算(400x?枚): ${paperSheets}枚</p>
-      `;
+      const editor = document.getElementById('editor');
+      const charCount = document.getElementById('charCount');
+      const charCountNoSpaces = document.getElementById('charCountNoSpaces');
+      const lineCount = document.getElementById('lineCount');
+      const paragraphCount = document.getElementById('paragraphCount');
+      const manuscriptSheets = document.getElementById('manuscriptSheets');
+
+      editor.addEventListener('input', function () {
+        const text = editor.value;
+        const textWithoutSpaces = text.replace(/\s+/g, '');
+        const lines = text.split(/[\r\n]+/g);
+        const paragraphs = text.trim().split(/[\r\n]{2,}/g);
+
+        lineCount.textContent = editor.value.split("\n").length;
+        charCount.textContent = text.length - lineCount.textContent + 1;
+        charCountNoSpaces.textContent = textWithoutSpaces.length;
+        paragraphCount.textContent = paragraphs.length;
+        manuscriptSheets.textContent = Math.ceil(text.length / 400);
+      });
+    });
+    //PCナビゲーションをモバイルに反映
+    document.querySelector("#mobile-nav").innerHTML = document.querySelector("#pc-nav").innerHTML;
+
+    //ダウンロード関数
+    function downloadTextareaContent() {
+      // テキストエリアの要素を取得
+      const textarea = document.getElementById('editor');
+
+      // テキストエリアの内容を取得
+      const content = textarea.value;
+
+      // ダウンロード用のBlobオブジェクトを作成
+      const blob = new Blob([content], { type: 'text/plain' });
+
+      // ダウンロード用のURLを作成
+      const url = URL.createObjectURL(blob);
+
+      // ダウンロード用のリンクを生成
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'text.txt';
+
+      // リンクをクリックしてダウンロードを開始
+      link.click();
+
+      // 不要になったURLオブジェクトを解放
+      URL.revokeObjectURL(url);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      var elems = document.querySelectorAll('.sidenav');
-      var instances = M.Sidenav.init(elems);
-    });
+    //アップロード
+    function openFilePicker() {
+      // ファイルピッカーの作成
+      const input = document.createElement('input');
+      input.type = 'file';
+
+      // ファイルが選択された時の処理
+      input.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+
+        // FileReaderを使用してファイルの内容を読み取る
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const fileContents = e.target.result;
+
+          // テキストエリアにファイルの内容を挿入する
+          const textarea = document.getElementById('editor');
+          textarea.value = fileContents;
+          // 文字数カウントを実行する
+          textarea.dispatchEvent(new Event('input'));
+        };
+
+        // テキストファイルとしてファイルを読み込む
+        reader.readAsText(file);
+      });
+
+      // ファイルピッカーを表示する
+      input.click();
+    }
+
+    function confirmAndResetTextarea() {
+      // ユーザーに確認ダイアログを表示し、OKが押された場合にのみリセットする
+      if (confirm('テキストエリアの内容を削除してもよろしいですか？')) {
+        // textareaの要素を取得
+        var textarea = document.getElementById('editor');
+
+        // textareaの内容をリセット（空にする）
+        textarea.value = '';
+        // 文字数カウントを実行する
+        textarea.dispatchEvent(new Event('input'));
+      }
+    }
+
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
+
 </html>
