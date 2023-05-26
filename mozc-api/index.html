@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 日本語入力 APIテスト</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .editor {
+            height: 60vh;
+            width: 100%;
+            overflow-y: auto;
+        }
+
+        body {
+            height: 100vh;
+        }
+
+        main {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar-fixed">
+        <nav>
+            <div class="nav-wrapper teal darken-1">
+                <a href="#">Google 日本語入力 APIテスト</a>
+                <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <ul id="pc-nav" class="right hide-on-med-and-down">
+                    <li><a href="../index.html">他のツール</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <ul class="sidenav" id="mobile-nav">
+
+    </ul>
+    <main>
+        <div class="container">
+            <p>Google CGI API for Japanese Input は、日本語変換をインターネット上で実現するための、CGI サービスです。ここでは動作テストができます。詳細は下記リンクをご覧ください。</p>
+            <a href="https://www.google.co.jp/ime/cgiapi.html">Google 日本語入力 - CGI API
+                デベロッパーガイドhttps://www.google.co.jp/ime/cgiapi.html</a>
+            <div class="input-field">
+                <input type="text" id="input-text" oninput="fetchAndProcessJSON()">
+                <label for="input-text">入力テキスト</label>
+            </div>
+
+            <table id="result-table" class="highlight">
+                <thead>
+                    <tr>
+                        <th>Input</th>
+                        <th>Output</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <footer class="page-footer teal darken-1">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">このサイトについて</h5>
+                    <p class="grey-text text-lighten-4">Mouse-toolsはブラウザ上で動く様々なツールを提供するサイトです。</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                    <!--
+          <h5 class="white-text">ツール</h5>
+          <ul>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 1</a></li>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 2</a></li>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 3</a></li>
+            <li><a class="grey-text text-lighten-3" href="#!">Link 4</a></li>
+          </ul>
+          -->
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © 2023 Copyright @mouse_soft_y
+                <a class="grey-text text-lighten-4 right" href="https://twitter.com/mouse_soft_y">Twitter</a>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        function fetchAndProcessJSON() {
+            const inputText = document.getElementById('input-text').value;
+
+            // Fetchでコマンドを実行し、結果を取得
+            fetch(`http://www.google.com/transliterate?langpair=ja-Hira|ja&text=${encodeURIComponent(inputText)}`)
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    // テーブルにデータを追加
+                    const tableBody = document.getElementById('table-body');
+                    tableBody.innerHTML = ''; // テーブルの中身をクリア
+
+                    data.forEach(function (item) {
+                        const input = item[0];
+                        const output = item[1].join(', ');
+                        const row = document.createElement('tr');
+                        const inputCell = document.createElement('td');
+                        const outputCell = document.createElement('td');
+                        inputCell.textContent = input;
+                        outputCell.textContent = output;
+                        row.appendChild(inputCell);
+                        row.appendChild(outputCell);
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(function (error) {
+                    console.log('Error:', error);
+                });
+        }
+
+        //PCナビゲーションをモバイルに反映
+        document.querySelector("#mobile-nav").innerHTML = document.querySelector("#pc-nav").innerHTML;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const elems = document.querySelectorAll('.sidenav');
+            M.Sidenav.init(elems);
+        });
+
+    </script>
+</body>
+
+</html>
