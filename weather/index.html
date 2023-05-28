@@ -16,7 +16,7 @@
 
         body,
         html {
-            height: 100vh;
+            min-height: 100vh;
         }
 
         main {
@@ -25,6 +25,12 @@
 
         iframe {
             height: 50vh;
+        }
+
+        .info {
+            font-size: 1.5em;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -51,8 +57,26 @@
             <div class="row" id="weather-summary"></div>
         </div>
     </main>
+    <footer class="page-footer teal darken-1">
+        <div class="container">
+            <div class="row">
+                <div class="col l6 s12">
+                    <h5 class="white-text">このサイトについて</h5>
+                    <p class="grey-text text-lighten-4">Mouse-toolsはブラウザ上で動く様々なツールを提供するサイトです。</p>
+                </div>
+                <div class="col l4 offset-l2 s12">
+                </div>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            <div class="container">
+                © 2023 Copyright @mouse_soft_y
+                <a class="grey-text text-lighten-4 right" href="https://twitter.com/mouse_soft_y">Twitter</a>
+            </div>
+        </div>
+    </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const elems = document.querySelectorAll('.sidenav');
@@ -61,8 +85,25 @@
 
         document.querySelector("#mobile-nav").innerHTML = document.querySelector("#pc-nav").innerHTML;
 
+        // URLパラメーターからregionIdを取得する
+        const urlParams = new URLSearchParams(window.location.search);
+        let regionId = urlParams.get('regionId');
+
+        // CookieからregionIdを取得する
+        if (!regionId) {
+            const cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)regionId\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            regionId = cookieValue;
+        }
+
+        // デフォルトのregionIdを設定する
+        if (!regionId) {
+            regionId = '016010';
+        }
+
+        // CookieにregionIdを保存する
+        document.cookie = `regionId=${regionId}`;
+
         // 天気情報の取得
-        const regionId = '400040';
         const apiUrl = `https://weather.tsukumijima.net/api/forecast/city/${regionId}`;
         fetch(apiUrl)
             .then(response => response.json())
@@ -80,10 +121,16 @@
                         <div class="card">
                             <div class="card-content">
                                 <span class="card-title">${forecast.dateLabel}</span>
-                                <img src="${forecast.image.url}" alt="${forecast.telop}">
-                                <p>${forecast.telop}</p>
-                                <p>最低気温: ${forecast.temperature.min.celsius}℃</p>
-                                <p>最高気温: ${forecast.temperature.max.celsius}℃</p>
+                                <div class="row">
+                                    <div class="col s6 info">
+                                        <img src="${forecast.image.url}" alt="${forecast.telop}">
+                                        <p>${forecast.telop}</p>
+                                    </div>
+                                    <div class="col s6 info">
+                                        <p><span style="color: blue;">最低気温 ${forecast.temperature.min.celsius}℃</span></p>
+                                        <p><span style="color: red;">最高気温 ${forecast.temperature.max.celsius}℃</span></p>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-action">
                                 <canvas id="chart-${forecast.date}"></canvas>
@@ -116,10 +163,11 @@
                         options: {
                             scales: {
                                 y: {
-                                    beginAtZero: true,
-                                    max: 100,
-                                    suggestedMin: 0,
-                                    suggestedMax: 100
+                                    beginAtZero: true, // y軸の表示を0から開始する
+                                    max: 100, // y軸の最大値を100に設定する
+                                    min: 0, // y軸の最小値を0に設定する
+                                    suggestedMin: 0, // グラフ描画時のy軸の最小値を0に設定する（オプション）
+                                    suggestedMax: 100 // グラフ描画時のy軸の最大値を100に設定する（オプション）
                                 }
                             },
                             plugins: {
@@ -149,6 +197,107 @@
                 `;
                 summaryCard.innerHTML = summaryCardContent;
                 weatherSummary.appendChild(summaryCard);
+            })
+            .catch(error => {
+                // エラーが発生した場合、デフォルトのregionIdを使用する
+                regionId = '016010';
+                const apiUrl = `https://weather.tsukumijima.net/api/forecast/city/${regionId}`;
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        // 地域名の表示
+                        const locationName = data.location.prefecture + ' ' + data.location.city;
+                        document.querySelector("#location-name").textContent = locationName;
+
+                        // 天気カードの表示
+                        const weatherCards = document.querySelector("#weather-cards");
+                        data.forecasts.forEach(forecast => {
+                            const card = document.createElement("div");
+                            card.className = "col s12 m6";
+                            const cardContent = `
+                                <div class="card">
+                                    <div class="card-content">
+                                        <span class="card-title">${forecast.dateLabel}</span>
+                                        <div class="row">
+                                            <div class="col s6 info">
+                                                <img src="${forecast.image.url}" alt="${forecast.telop}">
+                                                <p>${forecast.telop}</p>
+                                            </div>
+                                            <div class="col s6 info">
+                                                <p><span style="color: blue;">最低気温 ${forecast.temperature.min.celsius}℃</span></p>
+                                                <p><span style="color: red;">最高気温 ${forecast.temperature.max.celsius}℃</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-action">
+                                        <canvas id="chart-${forecast.date}"></canvas>
+                                    </div>
+                                </div>
+                            `;
+                            card.innerHTML = cardContent;
+                            weatherCards.appendChild(card);
+
+                            // 折れ線グラフの描画
+                            const chartData = {
+                                labels: ["00-06", "06-12", "12-18", "18-24"],
+                                datasets: [{
+                                    label: "降水確率",
+                                    fill: false,
+                                    borderColor: "teal",
+                                    data: [
+                                        parseInt(forecast.chanceOfRain.T00_06) || 0,
+                                        parseInt(forecast.chanceOfRain.T06_12) || 0,
+                                        parseInt(forecast.chanceOfRain.T12_18) || 0,
+                                        parseInt(forecast.chanceOfRain.T18_24) || 0
+                                    ]
+                                }]
+                            };
+
+                            const ctx = document.getElementById(`chart-${forecast.date}`).getContext('2d');
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: chartData,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true, // y軸の表示を0から開始する
+                                            max: 100, // y軸の最大値を100に設定する
+                                            min: 0, // y軸の最小値を0に設定する
+                                            suggestedMin: 0, // グラフ描画時のy軸の最小値を0に設定する（オプション）
+                                            suggestedMax: 100 // グラフ描画時のy軸の最大値を100に設定する（オプション）
+                                        }
+                                    },
+                                    plugins: {
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function (context) {
+                                                    return context.parsed.y + '%';
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        });
+
+                        // 気象概況の表示
+                        const weatherSummary = document.querySelector("#weather-summary");
+                        const summaryCard = document.createElement("div");
+                        summaryCard.className = "col s12";
+                        const summaryCardContent = `
+                            <div class="card">
+                                <div class="card-content">
+                                    <span class="card-title">気象概況</span>
+                                    <p>${data.description.text}</p>
+                                </div>
+                            </div>
+                        `;
+                        summaryCard.innerHTML = summaryCardContent;
+                        weatherSummary.appendChild(summaryCard);
+                    })
+                    .catch(error => {
+                        console.log('エラーが発生しました', error);
+                    });
             });
     </script>
 </body>
