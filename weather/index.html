@@ -14,13 +14,14 @@
             overflow-y: auto;
         }
 
-        body,
-        html {
+        body {
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
 
         main {
-            height: 100%;
+            flex: 1;
         }
 
         iframe {
@@ -42,6 +43,7 @@
                 <a href="#">気象情報</a>
                 <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                 <ul id="pc-nav" class="right hide-on-med-and-down">
+                    <li><a href="./areas.html">地域変更</a></li>
                     <li><a href="../index.html">他のツール</a></li>
                 </ul>
             </div>

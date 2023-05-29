@@ -4,16 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>郵便番号住所変換</title>
+    <title>マークダウンエディタ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        .editor {
-            height: 60vh;
-            width: 100%;
-            overflow-y: auto;
-        }
-
         body {
             display: flex;
             flex-direction: column;
@@ -24,8 +18,13 @@
             flex: 1;
         }
 
-        iframe {
-            height: 50vh;
+        .card-panel {
+            padding: 0;
+            box-shadow: none;
+        }
+
+        li {
+            list-style: initial !important;
         }
     </style>
 </head>
@@ -34,7 +33,7 @@
     <div class="navbar-fixed">
         <nav>
             <div class="nav-wrapper teal darken-1">
-                <a href="#">郵便番号住所変換</a>
+                <a href="#">マークダウンエディタ</a>
                 <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                 <ul id="pc-nav" class="right hide-on-med-and-down">
                     <li><a href="../index.html">他のツール</a></li>
@@ -48,14 +47,18 @@
     <main>
         <div class="container">
             <div class="row">
-                <div class="col s12">
-                    <h4>郵便番号から住所を検索</h4>
+                <div class="col s12 m6">
+                    <p>markdown</p>
                     <div class="input-field">
-                        <input type="text" id="zipcode-input" placeholder="郵便番号を入力">
-                        <button class="btn waves-effect waves-light" onclick="searchAddress()">検索</button>
+                        <textarea id="markdown-input" class="materialize-textarea" rows="10" cols="50"></textarea>
+                        <label for="markdown-input">マークダウン</label>
                     </div>
-                    <div id="address-output"></div>
-                    <div id="map-output"></div>
+                </div>
+                <div class="col s12 m6">
+                    <p>preview</p>
+                    <div class="card-panel">
+                        <div class="markdown-output" id="preview-output"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -79,36 +82,8 @@
         </div>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-        function searchAddress() {
-            var zipcode = document.getElementById('zipcode-input').value;
-            var url = `https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    var addressOutput = document.getElementById('address-output');
-                    var mapOutput = document.getElementById('map-output');
-
-                    if (data.results && data.results.length > 0) {
-                        var result = data.results[0];
-                        var address = `${result.address1}${result.address2}${result.address3}`;
-                        var mapUrl = `https://maps.google.com/maps?output=embed&q=${address}&t=h&hl=ja&z=14`;
-
-                        addressOutput.innerHTML = `<p>${address}</p>`;
-                        mapOutput.innerHTML = `<iframe src="${mapUrl}" width="100%" height="250" frameborder="0" style="border:0;" allowfullscreen=""></iframe>`;
-                    } else {
-                        addressOutput.innerHTML = '<p>該当する住所は見つかりませんでした。</p>';
-                        mapOutput.innerHTML = '';
-                    }
-                })
-                .catch(error => {
-                    console.error('エラー:', error);
-                    var addressOutput = document.getElementById('address-output');
-                    addressOutput.innerHTML = '<p>住所の取得中にエラーが発生しました。</p>';
-                });
-        }
-
         // PCナビゲーションをモバイルに反映
         document.querySelector("#mobile-nav").innerHTML = document.querySelector("#pc-nav").innerHTML;
 
@@ -117,6 +92,17 @@
             M.Sidenav.init(elems);
         });
 
+        // テキストエリアの入力が変更されるたびにプレビューを更新する
+        const input = document.getElementById('markdown-input');
+        const output = document.getElementById('preview-output');
+
+        input.addEventListener('input', updatePreview);
+
+        function updatePreview() {
+            const markdown = input.value;
+            const html = marked.parse(markdown);
+            output.innerHTML = html;
+        }
     </script>
 </body>
 

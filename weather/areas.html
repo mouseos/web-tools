@@ -14,13 +14,14 @@
             overflow-y: auto;
         }
 
-        body,
-        html {
+        body {
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
 
         main {
-            height: 100%;
+            flex: 1;
         }
 
         iframe {
@@ -51,7 +52,7 @@
 
     </ul>
     <main>
-        <div class="container">
+        <div class="container areas">
 
         </div>
     </main>
@@ -90,26 +91,29 @@
             "関東": 47,
             "中部": 70,
             "近畿": 83,
-            "中国": 97,
+            "中国": 96,
             "四国": 105,
             "九州": 131,
             "沖縄": 138
         };
 
         const areas = {
-            "網走": "011000",
-            "北見": "012010",
-            "紋別": "012020",
-            "根室": "013010",
-            "釧路": "013020",
-            "帯広": "013030",
-            "室蘭": "014010",
-            "浦河": "014020",
-            "札幌": "014030",
-            "岩見沢": "015010",
-            "倶知安": "015020",
-            "函館": "016010",
-            "江差": "016020",
+            "稚内": "011000",
+            "旭川": "012010",
+            "留萌": "012020",
+            "網走": "013010",
+            "北見": "013020",
+            "紋別": "013030",
+            "根室": "014010",
+            "釧路": "014020",
+            "帯広": "014030",
+            "室蘭": "015010",
+            "浦河": "015020",
+            "札幌": "016010",
+            "岩見沢": "016020",
+            "倶知安": "016030",
+            "函館": "017010",
+            "江差": "017020",
             "青森": "020010",
             "むつ": "020020",
             "八戸": "020030",
@@ -240,23 +244,38 @@
 
         const areaKeys = Object.keys(areas);
         let currentIndex = 0;
+        let areas_html = '<ul class="collapsible popout">';
 
         for (const region in regions) {
             console.log(region);
+            areas_html += `<li>
+      <div class="collapsible-header">`+ region + `</div><div class="collapsible-body"> <div class="collection">`;
             const regionEndIndex = regions[region];
             let output = '';
 
             for (; currentIndex <= regionEndIndex && currentIndex < areaKeys.length; currentIndex++) {
                 const areaKey = areaKeys[currentIndex];
                 output += `"${areaKey}": "${areas[areaKey]}"`;
+                areas_html += `<a class="collection-item" href="index.html?regionId=${areas[areaKey]}" >${areaKey}</a>`;
 
                 if (currentIndex !== regionEndIndex && currentIndex !== areaKeys.length - 1) {
                     output += ', ';
                 }
             }
-
+            areas_html += "</div></div></li>"
             console.log(output);
         }
+        areas_html += "</ul>";
+        document.querySelector(".areas").innerHTML = areas_html;
+        console.log(areas_html);
+
+
+        //init collapsible
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.collapsible');
+            var instances = M.Collapsible.init(elems, { accordion: true });
+        });
     </script>
 </body>
 
